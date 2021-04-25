@@ -1,0 +1,26 @@
+#Import resource
+[system.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | out-null
+
+function getMousePosition{
+    while(1){
+        $mouse = [System.Windows.Forms.Cursor]::Position
+        echo "$($mouse.x),$($mouse.y)"
+        sleep 1
+    }
+}
+
+#Set mouse position
+[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($mouse.x,$mouse.y)
+
+#============================================================================================
+function leftClick{
+    $signature=@' 
+      [DllImport("user32.dll",CharSet=CharSet.Auto, CallingConvention=CallingConvention.StdCall)]
+      public static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
+'@ 
+
+    $SendMouseClick = Add-Type -memberDefinition $signature -name "Win32MouseEventNew" -namespace Win32Functions -passThru 
+
+    $SendMouseClick::mouse_event(0x00000002, 0, 0, 0, 0);
+    $SendMouseClick::mouse_event(0x00000004, 0, 0, 0, 0);
+}
